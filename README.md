@@ -44,6 +44,19 @@ flutter build web
 
 Then deploy `build/web` to Netlify, Vercel, Firebase Hosting, or any static host.
 
+## Vercel (GitHub)
+
+This repo includes `vercel.json` and `scripts/vercel-build.sh` so Vercel can
+build Flutter on CI. In your Vercel project settings, add these environment
+variables:
+
+- `AGORA_APP_ID`
+- `AGORA_TOKEN` (temp token; expires)
+- `AGORA_CHANNEL` (default `classroom-demo`)
+- `AGORA_UID` (default `0`)
+
+Vercel will run the build and publish `build/web`.
+
 ## Notes
 
 - The Agora web runtime depends on the Iris Web SDK loaded in `web/index.html`.
