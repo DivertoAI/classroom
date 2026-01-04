@@ -26,42 +26,29 @@ jobs:
         with:
           channel: stable
 
-      - name: Prepare env
-        run: |
-          cat > .env <<EOF
-          RTC_PROVIDER=${RTC_PROVIDER:-agora}
-
-          AGORA_APP_ID=${AGORA_APP_ID:-}
-          AGORA_TOKEN=${AGORA_TOKEN:-}
-          AGORA_CHANNEL=${AGORA_CHANNEL:-classroom-demo}
-          AGORA_UID=${AGORA_UID:-0}
-
-          LIVEKIT_URL=${LIVEKIT_URL:-}
-          LIVEKIT_TOKEN=${LIVEKIT_TOKEN:-}
-          LIVEKIT_ROOM=${LIVEKIT_ROOM:-classroom-demo}
-
-          DEMO_MODE=${DEMO_MODE:-false}
-          EOF
-        env:
-          RTC_PROVIDER: ${{ secrets.RTC_PROVIDER }}
-          AGORA_APP_ID: ${{ secrets.AGORA_APP_ID }}
-          AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
-          AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
-          AGORA_UID: ${{ secrets.AGORA_UID }}
-          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
-          LIVEKIT_TOKEN: ${{ secrets.LIVEKIT_TOKEN }}
-          LIVEKIT_ROOM: ${{ secrets.LIVEKIT_ROOM }}
-          DEMO_MODE: ${{ secrets.DEMO_MODE }}
+      - name: Ensure env asset exists
+        run: touch .env
 
       - name: Install deps
         run: flutter pub get
 
       - name: Build web
         run: |
-          flutter build web \
+          flutter build web --release \
             --dart-define=FLUTTER_WEB_USE_SKIA=true \
             --dart-define=FLUTTER_WEB_USE_SKWASM=false \
-            --base-href /classroom/
+            --base-href /classroom/ \
+            --dart-define=AGORA_APP_ID=${AGORA_APP_ID} \
+            --dart-define=AGORA_TOKEN=${AGORA_TOKEN} \
+            --dart-define=AGORA_CHANNEL=${AGORA_CHANNEL:-classroom-demo} \
+            --dart-define=RTC_PROVIDER=${RTC_PROVIDER:-agora} \
+            --dart-define=DEMO_MODE=${DEMO_MODE:-false}
+        env:
+          AGORA_APP_ID: ${{ secrets.AGORA_APP_ID }}
+          AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
+          AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
+          RTC_PROVIDER: ${{ secrets.RTC_PROVIDER }}
+          DEMO_MODE: ${{ secrets.DEMO_MODE }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

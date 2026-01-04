@@ -71,7 +71,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
     if (_appId.isEmpty) {
       setState(() {
         _errorMessage =
-            'Missing AGORA_APP_ID. Add it to .env to start the video session.';
+            'Missing AGORA_APP_ID configuration. Provide it and retry.';
         _initializing = false;
       });
       return;
@@ -140,7 +140,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
     if (!AppConfig.hasLivekitConfig) {
       setState(() {
         _errorMessage =
-            'Missing LIVEKIT_URL or LIVEKIT_TOKEN. Add them to .env to start the video session.';
+            'Missing LiveKit configuration. Provide LIVEKIT_URL and LIVEKIT_TOKEN.';
         _initializing = false;
       });
       return;
