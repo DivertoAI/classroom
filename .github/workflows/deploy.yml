@@ -1,0 +1,80 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Prepare env
+        run: |
+          cat > .env <<EOF
+          RTC_PROVIDER=${RTC_PROVIDER:-agora}
+
+          AGORA_APP_ID=${AGORA_APP_ID:-}
+          AGORA_TOKEN=${AGORA_TOKEN:-}
+          AGORA_CHANNEL=${AGORA_CHANNEL:-classroom-demo}
+          AGORA_UID=${AGORA_UID:-0}
+
+          LIVEKIT_URL=${LIVEKIT_URL:-}
+          LIVEKIT_TOKEN=${LIVEKIT_TOKEN:-}
+          LIVEKIT_ROOM=${LIVEKIT_ROOM:-classroom-demo}
+
+          DEMO_MODE=${DEMO_MODE:-false}
+          EOF
+        env:
+          RTC_PROVIDER: ${{ secrets.RTC_PROVIDER }}
+          AGORA_APP_ID: ${{ secrets.AGORA_APP_ID }}
+          AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
+          AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
+          AGORA_UID: ${{ secrets.AGORA_UID }}
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_TOKEN: ${{ secrets.LIVEKIT_TOKEN }}
+          LIVEKIT_ROOM: ${{ secrets.LIVEKIT_ROOM }}
+          DEMO_MODE: ${{ secrets.DEMO_MODE }}
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Build web
+        run: |
+          flutter build web \
+            --dart-define=FLUTTER_WEB_USE_SKIA=true \
+            --dart-define=FLUTTER_WEB_USE_SKWASM=false \
+            --base-href /classroom/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

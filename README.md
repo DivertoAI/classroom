@@ -57,6 +57,22 @@ variables:
 
 Vercel will run the build and publish `build/web`.
 
+## GitHub Pages (recommended for a public demo)
+
+This repo includes `.github/workflows/deploy.yml` to build and deploy the web
+app to GitHub Pages on every push to `main`.
+
+Steps:
+1) In GitHub → Settings → Pages, set **Source** to **GitHub Actions**.
+2) Add the following **Repository Secrets**:
+   - `AGORA_APP_ID`
+   - `AGORA_TOKEN`
+   - `AGORA_CHANNEL` (default `classroom-demo`)
+   - `AGORA_UID` (default `0`)
+3) Push to `main` to trigger the deploy.
+
+The site will be available at: `https://divertoai.github.io/classroom/`
+
 ## Notes
 
 - The Agora web runtime depends on the Iris Web SDK loaded in `web/index.html`.
